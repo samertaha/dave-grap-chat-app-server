@@ -37,25 +37,85 @@ io.on('connection', socket => {
     console.log(`${socket.id} connected`);
 
     // Upon connection - only to user
-    socket.emit('message', 'Welcome to chat app!');
+    socket.emit('message', buildMsg(ADMIN, 'Welcome to Chat App!'));
+
+    socket.on('enterRoom', ({ name, room }) => {
+        // leave previous room
+        const prevRoom = getUser(socket.id)?.room;
+
+        if (prevRoom) {
+            socket.leave(prevRoom);
+            io.to(prevRoom).emit('message', buildMsg('message', `${name} has left the room`));
+        }
+
+        const user = activateUser(socket.id, name, room);
+
+        // cannot update previous room users list until after the state update in activate user
+
+        if (prevRoom) {
+            io.to(prevRoom).emit('userList', {
+                users: getUsersInRoom(prevRoom),
+                room: prevRoom
+            });
+        }
+        // join room
+        socket.join(user.room);
+
+        //To user who joined
+        socket.emit('message', buildMsg(ADMIN, `You have joined ${user.room} chat room`));
+
+        //To all other users
+        socket.broadcast.to(user.room).emit('message', buildMsg(ADMIN, `${user.name} has joined ${user.room} chat room`));
+
+        // update users list for room
+        io.to(user.room).emit('userList', {
+            users: getUsersInRoom(user.room),
+        });
+
+        // update rooms list for everyone
+        io.emit('roomList', {
+            rooms: getAllActiveRooms()
+        });
+    });
+
 
     // Upon connection - to all others
     socket.broadcast.emit('message', `${socket.id.substring(0, 5)} connected`);
 
-    // Listening for a message event
-    socket.on('message', data => {
-        console.log(data);
-        io.emit('message', `${socket.id.substring(0, 5)}: ${data}`);
-    });
-
     // When user disconnects - to all others
     socket.on('disconnect', () => {
-        socket.broadcast.emit('message', `${socket.id.substring(0, 5)} disconnected`);
+        const user = getUser(socket.id);
+        userLeavesApp(socket.id);
+
+        if (user) {
+            io.to(user.room).emit('message', buildMsg(ADMIN, `${user.name} has left the room`));
+
+            io.to(user.room).emit('userList', {
+                users: getUsersInRoom(user.room),
+            });
+
+            io.emit('roomList', {
+                rooms: getAllActiveRooms()
+            });
+        }
+        console.log(`${socket.id} disconnected`);
+
+    });
+
+    // Listening for a message event
+    socket.on('message', ({ name, text }) => {
+        const room = getUser(socket.id)?.room;
+        if (room) {
+            io.to(room).emit('message', buildMsg(name, text));
+        }
     });
 
     // listen to activity
     socket.on('activity', name => {
-        socket.broadcast.emit('activity', name);
+        const room = getUser(socket.id)?.room;
+        if (room) {
+            socket.broadcast.to(room).emit('activity', name);
+        }
     });
 });
 
@@ -88,5 +148,13 @@ function userLeavesApp(id) {
 }
 
 function getUser(id) {
-    
+    return UsersState.users.find(user => user.id === id);
+}
+
+function getUsersInRoom(room) {
+    return UsersState.users.filter(user => user.room === room);
+}
+
+function getAllActiveRooms() {
+    return Array.from(new Set(UsersState.users.map(user => user.room)));
 }
