@@ -1,4 +1,5 @@
-const socket = io('ws://localhost:3500');
+// const socket = io('ws://localhost:3500');  for local use only
+const socket = io('https://socket-io-chat-app-ifds.onrender.com');
 
 const msgInput = document.querySelector('#message');
 const nameInput = document.querySelector('#name');
