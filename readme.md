@@ -25,8 +25,9 @@ I practiced How to build a Real Time Chat App with Users, Rooms | Node.js, Expre
 
 Contributors names and contact info
 
-   Samer Taha  
-[@linkedin](https://www.linkedin.com/in/samertaha1971/)
+Samer Taha  
+[go to my linkedin](https://www.linkedin.com/in/samertaha1971/)
+[go to my CV word file](https://bit.ly/3MxdkKt)
 
 ## License
 
@@ -35,4 +36,3 @@ This project is licensed as MIT license.
 ## Acknowledgments
 
 Inspiration, Dave Gray.
-* [awesome-readme](https://github.com/gitdagray)
