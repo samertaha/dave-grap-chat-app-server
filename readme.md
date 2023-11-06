@@ -17,6 +17,9 @@ I practiced How to build a Real Time Chat App with Users, Rooms | Node.js, Expre
 * How/where to download your program
 * Any modifications needed to be made to files/folders
 
+## DEMO link
+[DEMO LINK](https://socket-io-chat-app-ifds.onrender.com/)
+
 
 ## Authors
 
@@ -27,7 +30,7 @@ Contributors names and contact info
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed as MIT license.
 
 ## Acknowledgments
 
